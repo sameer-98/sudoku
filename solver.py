@@ -55,15 +55,19 @@ def print_board(bo):
         pretty prints the board
         :param bo: 2d list of integers
     '''
-    for i in range(9):
+    for i in range(len(bo)):
         if i % 3 == 0 and i != 0:
-                print('- - - - - - - - - - - - - - - - -') 
-        for j in range(9):
-            if j % 3 == 0 and j != 0:
-                print('| ', end='')
-            print(bo[i][j],' ', end='')
-        print('\n')
+            print('- - - - - - - - - - - - - - - - -')
+        for j in range(len(bo[0])):
+            if j % 3 == 0 and j != 0 :
+                print(' | ', end='')
+
+            if j == 8:
+                print(bo[i][j], end='')
+            else:
+                print(bo[i][j], ' ', end='')
         
+        print('\n')
         
     
 print_board(board)
