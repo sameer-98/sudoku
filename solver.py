@@ -10,6 +10,28 @@ board = [
     [0,4,9,2,0,6,0,0,7]
 ]
 
+board1 = [[0,0,0,2,6,0,7,0,1],
+          [6,8,0,0,7,0,0,9,0],
+          [1,9,0,0,0,4,5,0,0],
+          [8,2,0,1,0,0,0,4,0],
+          [0,0,4,6,0,2,9,0,0],
+          [0,5,0,0,0,3,0,2,8],
+          [0,0,9,3,0,0,0,7,4],
+          [0,4,0,0,5,0,0,3,6],
+          [7,0,3,0,1,8,0,0,0]
+          ]
+
+board2 = [[0,2,0,6,0,8,0,0,0],
+          [5,8,0,0,0,9,7,0,0],
+          [0,0,0,0,4,0,0,0,0],
+          [3,7,0,0,0,0,5,0,0],
+          [6,0,0,0,0,0,0,0,4],
+          [0,0,8,0,0,0,0,1,3],
+          [0,0,0,0,2,0,0,0,0],
+          [0,0,9,8,0,0,0,3,6],
+          [0,0,0,3,0,6,0,9,0],
+          ]
+
 # create a function that when given a board, a number and position checks if 
 # the move is valid or not
 def is_valid(board, num, pos):
@@ -25,12 +47,12 @@ def is_valid(board, num, pos):
 
     #Check the whole row
     for i in range(9):
-        if board[row][i] == num:
+        if board[row][i] == num and i != col:
             return False
     
     # check the whole column
     for j in range(9):
-        if board[j][col] == num:
+        if board[j][col] == num and j != row:
             return False
         
     # check the 3x3 subgrid
@@ -44,9 +66,33 @@ def is_valid(board, num, pos):
             
     return True
 
-# Create a function that given a row col and a board solves for the cell 
-def solve(row, col, board):
-    pass
+# Create a function that recursively solves the board
+def solve(board):
+    '''
+        Solves the board
+        :param board: 2d array of integers
+        :return bool: True or False if the solution is found or not
+    '''
+    #find if there are empty spaces left, if there are none then the board is solved
+    find = find_empty(board)
+    if not find:
+        return True
+    else:
+        row, col = find
+    
+    # Now loop through 1 - 9 and try to place a number in the spot
+    for i in range(1,10):
+        if is_valid(board, i, (row, col)):
+            board[row][col] = i 
+
+            if solve(board):
+                return True
+            
+            # if the board comes to a point where none of the numbers at the position are valid then reset to 0
+            board[row][col] = 0        
+
+    return False
+
 
 def find_empty(bo):
     '''
@@ -82,5 +128,13 @@ def print_board(bo):
         print('\n')
         
 if __name__ == '__main__':    
-    print_board(board)
+    solve(board)
+    solve(board1)
+    solve(board2)
+
+    print(board)
+    print(board1)
+    print(board2)
+
     
+
