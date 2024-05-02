@@ -12,7 +12,7 @@ board = [
 
 # create a function that when given a board, a number and position checks if 
 # the move is valid or not
-def isValid(board, num, pos):
+def is_valid(board, num, pos):
     '''
         checks whether the given position is a valid move or not
         :param board: 2d list of integer
