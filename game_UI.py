@@ -84,16 +84,28 @@ def game_loop(screen, game_active, clock):
                 #disable mouse click on other boxes
 
             if clicked_cube and event.type == pygame.KEYDOWN:
-                try:
-                    key = int(chr(event.key))
-                    cube = [c for c in cubes if c.pos == clicked_cube][0]
-                    cube.set_num(key)
-                except ValueError:
-                    print('Enter a Number')
+                #Need to allow back space and integers
+                key = 0
+                cube = [c for c in cubes if c.pos == clicked_cube][0]
+                if event.key == pygame.K_BACKSPACE:
+                    cube.set_num(0)
+                    key = 0
+                else:
+                    try:
+                        key = int(chr(event.key))
+                        cube.set_num(key)
+                    except ValueError:
+                        print('Enter a Number')
+                
+                bo[clicked_cube[0]][clicked_cube[1]] = key
+                
+
         if game_active:
             cubes.draw(screen)
             cubes.update()
-            # game_active = solve() == bo 
+
+            print_board(solved_bo)
+            game_active = solved_bo != bo
 
         else:
             screen.fill('green')
