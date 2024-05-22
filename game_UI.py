@@ -20,14 +20,16 @@ class Cube(pygame.sprite.Sprite):
     def create_cube(self):
         self.image.fill('white')
         pygame.draw.rect(self.image, 'black', [0, 0, self.width, self.height], 1)
-        self.textSurface = self.font.render(self.num, 0, 'black')
+        self.textSurface = self.font.render(str(self.num), 0, 'black')
         text_rect = self.textSurface.get_rect(center=(self.width/2, self.height/2))
         self.image.blit(self.textSurface, text_rect)
         
+    def set_num(self, num):
+        self.num = num
 
-
-    def update(self, num):
-        self.create_cube(num)     
+    def update(self):
+        self.create_cube()
+        self.rect = self.image.get_rect(topleft=(self.pos[1] * self.width, self.pos[0] * self.height))
     
 def get_board():
 
@@ -44,15 +46,23 @@ def initialize_board(bo, screen):
     cubes = pygame.sprite.Group()
     for i in range(9):
         for j in range(9):
-            cube = Cube((i,j), str(bo[i][j]), SCREEN_WIDTH//9, SCREEN_HEIGHT//9)
+            cube = Cube((i,j), bo[i][j], SCREEN_WIDTH//9, SCREEN_HEIGHT//9)
             cubes.add(cube)
     
-    cubes.draw(screen)
     return cubes
+
+#Checks if we are using cube that has a zero
+def check_pos(bo, cube):
+    x,y = cube.pos
+    if bo[x][y] == 0: return (x,y)
+
+    return None
 
 def game_loop(screen, game_active, clock):
     bo = []
     solved_bo = []
+    cubes = pygame.sprite.Group()
+    clicked_cube = ()
 
     while True:
         for event in pygame.event.get():
@@ -63,16 +73,26 @@ def game_loop(screen, game_active, clock):
             if game_active == False and event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE:
                     bo, solved_bo = get_board()
+                    cubes = initialize_board(bo, screen)
                     game_active = True
-                    print_board(bo)
-                    print('**************************')
-                    print_board(solved_bo)
-                    
-        
+
+            if game_active == True and event.type == pygame.MOUSEBUTTONDOWN:
+                mouse_pos = pygame.mouse.get_pos()
+                #select the clicked cube
+                cube = [c for c in cubes if c.rect.collidepoint(mouse_pos)][0]
+                clicked_cube = check_pos(bo, cube)
+                #disable mouse click on other boxes
+
+            if clicked_cube and event.type == pygame.KEYDOWN:
+                try:
+                    key = int(chr(event.key))
+                    cube = [c for c in cubes if c.pos == clicked_cube][0]
+                    cube.set_num(key)
+                except ValueError:
+                    print('Enter a Number')
         if game_active:
-            screen.fill('black')
-            initialize_board(bo, screen)
-            
+            cubes.draw(screen)
+            cubes.update()
             # game_active = solve() == bo 
 
         else:
