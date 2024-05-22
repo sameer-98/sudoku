@@ -60,6 +60,7 @@ def check_pos(bo, cube):
 
 def game_loop(screen, game_active, clock):
     bo = []
+    original_bo = []
     solved_bo = []
     cubes = pygame.sprite.Group()
     clicked_cube = ()
@@ -73,6 +74,7 @@ def game_loop(screen, game_active, clock):
             if game_active == False and event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE:
                     bo, solved_bo = get_board()
+                    original_bo = deepcopy(bo)
                     cubes = initialize_board(bo, screen)
                     game_active = True
 
@@ -80,7 +82,7 @@ def game_loop(screen, game_active, clock):
                 mouse_pos = pygame.mouse.get_pos()
                 #select the clicked cube
                 cube = [c for c in cubes if c.rect.collidepoint(mouse_pos)][0]
-                clicked_cube = check_pos(bo, cube)
+                clicked_cube = check_pos(original_bo, cube)
                 #disable mouse click on other boxes
 
             if clicked_cube and event.type == pygame.KEYDOWN:
@@ -88,8 +90,8 @@ def game_loop(screen, game_active, clock):
                 key = 0
                 cube = [c for c in cubes if c.pos == clicked_cube][0]
                 if event.key == pygame.K_BACKSPACE:
-                    cube.set_num(0)
-                    key = 0
+                    print('Hello')
+                    cube.set_num(key)
                 else:
                     try:
                         key = int(chr(event.key))
@@ -104,7 +106,6 @@ def game_loop(screen, game_active, clock):
             cubes.draw(screen)
             cubes.update()
 
-            print_board(solved_bo)
             game_active = solved_bo != bo
 
         else:
