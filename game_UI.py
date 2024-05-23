@@ -70,6 +70,7 @@ def game_loop(screen, game_active, clock):
     solved_bo = []
     cubes = pygame.sprite.Group()
     clicked_cube = ()
+    disabled = False
 
     while True:
         for event in pygame.event.get():
@@ -86,32 +87,36 @@ def game_loop(screen, game_active, clock):
 
             if game_active == True and event.type == pygame.MOUSEBUTTONDOWN:
                 mouse_pos = pygame.mouse.get_pos()
+                if disabled: continue
                 #select the clicked cube
                 cube = [c for c in cubes if c.rect.collidepoint(mouse_pos)][0]
                 clicked_cube = check_pos(original_bo, cube)
-                if clicked_cube: cube.is_selected = True
+                if clicked_cube: 
+                    cube.is_selected = True
+                    disabled = True
                 #disable mouse click on other boxes
 
             if clicked_cube and event.type == pygame.KEYDOWN:
                 #Need to allow back space and integers
                 key = 0
                 cube = [c for c in cubes if c.pos == clicked_cube][0]
-                cube.is_selected = False
+                
                 if event.key == pygame.K_BACKSPACE:
-                    print('Hello')
                     cube.set_num(key)
                 else:
                     try:
                         key = int(chr(event.key))
-                        cube.set_num(key)
+                        if cube.is_selected: cube.set_num(key)
                     except ValueError:
                         print('Enter a Number')
+                
+                cube.is_selected = False
+                disabled = False
                 
                 bo[clicked_cube[0]][clicked_cube[1]] = key
 
             if game_active and event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_RETURN:
-                    print('Hello')
                     for cube in cubes:
                         i, j = cube.pos
                         cube.set_num(solved_bo[i][j])
