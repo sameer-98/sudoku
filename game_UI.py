@@ -15,6 +15,7 @@ class Cube(pygame.sprite.Sprite):
         self.image = pygame.Surface((self.width, self.height))
         self.create_cube()
         self.rect = self.image.get_rect(topleft=(self.pos[1] * self.width, self.pos[0] * self.height))
+        self.is_selected = False
 
 
     def create_cube(self):
@@ -27,9 +28,14 @@ class Cube(pygame.sprite.Sprite):
     def set_num(self, num):
         self.num = num
 
+    def select_cube(self):
+        if self.is_selected:
+            pygame.draw.rect(self.image, 'blue', [0, 0, self.width, self.height], 5)
+
     def update(self):
         self.create_cube()
         self.rect = self.image.get_rect(topleft=(self.pos[1] * self.width, self.pos[0] * self.height))
+        self.select_cube()
     
 def get_board():
 
@@ -83,12 +89,14 @@ def game_loop(screen, game_active, clock):
                 #select the clicked cube
                 cube = [c for c in cubes if c.rect.collidepoint(mouse_pos)][0]
                 clicked_cube = check_pos(original_bo, cube)
+                if clicked_cube: cube.is_selected = True
                 #disable mouse click on other boxes
 
             if clicked_cube and event.type == pygame.KEYDOWN:
                 #Need to allow back space and integers
                 key = 0
                 cube = [c for c in cubes if c.pos == clicked_cube][0]
+                cube.is_selected = False
                 if event.key == pygame.K_BACKSPACE:
                     print('Hello')
                     cube.set_num(key)
@@ -100,7 +108,10 @@ def game_loop(screen, game_active, clock):
                         print('Enter a Number')
                 
                 bo[clicked_cube[0]][clicked_cube[1]] = key
-                
+
+            if game_active and event.type == pygame.K_RETURN:
+                pass
+                #go to end screen and display the answer        
 
         if game_active:
             cubes.draw(screen)
