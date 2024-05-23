@@ -109,9 +109,13 @@ def game_loop(screen, game_active, clock):
                 
                 bo[clicked_cube[0]][clicked_cube[1]] = key
 
-            if game_active and event.type == pygame.K_RETURN:
-                pass
-                #go to end screen and display the answer        
+            if game_active and event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_RETURN:
+                    print('Hello')
+                    for cube in cubes:
+                        i, j = cube.pos
+                        cube.set_num(solved_bo[i][j])
+                    #go to end screen and display the answer        
 
         if game_active:
             cubes.draw(screen)
