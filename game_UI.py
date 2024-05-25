@@ -13,6 +13,7 @@ class Cube(pygame.sprite.Sprite):
         self.num = num
         self.width = width
         self.height = height 
+        self.fill = 'white'
         self.image = pygame.Surface((self.width, self.height))
         self.create_cube()
         self.rect = self.image.get_rect(topleft=(self.pos[1] * self.width + self.offset[0], self.pos[0] * self.height + self.offset[1]))
@@ -20,7 +21,7 @@ class Cube(pygame.sprite.Sprite):
 
 
     def create_cube(self):
-        self.image.fill('white')
+        self.image.fill(self.fill)
         pygame.draw.rect(self.image, 'black', [0, 0, self.width, self.height], 1)
         self.textSurface = self.font.render(str(self.num), 0, 'black')
         text_rect = self.textSurface.get_rect(center=(self.width/2, self.height/2))
@@ -28,6 +29,10 @@ class Cube(pygame.sprite.Sprite):
         
     def set_num(self, num):
         self.num = num
+        if num != 0:
+            self.fill = 'darkslategray1'
+        else:
+            self.fill = 'white'
 
     def select_cube(self):
         if self.is_selected:
