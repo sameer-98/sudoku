@@ -5,16 +5,17 @@ from copy import deepcopy
 
 class Cube(pygame.sprite.Sprite):
     
-    def __init__(self, pos, num, width, height):
+    def __init__(self, pos, num, width, height, font, offset):
         super().__init__()
-        self.font = pygame.font.SysFont("Arial", 24)
+        self.font = font
         self.pos = pos
+        self.offset = offset
         self.num = num
         self.width = width
         self.height = height 
         self.image = pygame.Surface((self.width, self.height))
         self.create_cube()
-        self.rect = self.image.get_rect(topleft=(self.pos[1] * self.width, self.pos[0] * self.height))
+        self.rect = self.image.get_rect(topleft=(self.pos[1] * self.width + self.offset[0], self.pos[0] * self.height + self.offset[1]))
         self.is_selected = False
 
 
@@ -34,9 +35,17 @@ class Cube(pygame.sprite.Sprite):
 
     def update(self):
         self.create_cube()
-        self.rect = self.image.get_rect(topleft=(self.pos[1] * self.width, self.pos[0] * self.height))
+        self.rect = self.image.get_rect(topleft=(self.pos[1] * self.width + self.offset[0], self.pos[0] * self.height + self.offset[1]))
         self.select_cube()
     
+
+def display_score(start_time, font, screen):
+    current_time = (pygame.time.get_ticks() // 1000) - start_time
+    score_surf = font.render(f'Score: {current_time}', False, (64,64,64))
+    score_rect = score_surf.get_rect(center=(300,650))
+    # screen.blit(score_surf, score_rect)
+    return current_time, score_surf, score_rect
+
 def get_board():
 
     boards = [board, board1, board2]
@@ -47,12 +56,12 @@ def get_board():
     return current_board, None
 
 
-def initialize_board(bo, screen):
-    SCREEN_WIDTH, SCREEN_HEIGHT = screen.get_size()
+def initialize_board(bo,screen, font, offset):
+    SCREEN_WIDTH, SCREEN_HEIGHT = (540,540)
     cubes = pygame.sprite.Group()
     for i in range(9):
         for j in range(9):
-            cube = Cube((i,j), bo[i][j], SCREEN_WIDTH//9, SCREEN_HEIGHT//9)
+            cube = Cube((i,j), bo[i][j], SCREEN_WIDTH//9, SCREEN_HEIGHT//9, font, offset)
             cubes.add(cube)
     
     return cubes
@@ -64,13 +73,35 @@ def check_pos(bo, cube):
 
     return None
 
-def game_loop(screen, game_active, clock):
+def display_text(surface, text, pos, font, color):
+    collection = [word.split(' ') for word in text.splitlines()]
+    space = font.size(' ')[0]
+    x,y = pos
+    for lines in collection:
+        for words in lines:
+            word_surface = font.render(words, True, color)
+            word_width , word_height = word_surface.get_size()
+            if x + word_width >= 540:
+                x = pos[0]
+                y += word_height
+            surface.blit(word_surface, (x,y))
+            x += word_width + space
+        x = pos[0]
+        y += word_height
+
+def game_loop(screen, game_active, clock, font):
     bo = []
     original_bo = []
     solved_bo = []
     cubes = pygame.sprite.Group()
     clicked_cube = ()
     disabled = False
+    win_width, win_height = screen.get_size()
+    game_board_width, game_board_height = win_width - 100, win_height - 100
+    board_x = (win_width - game_board_width) // 2
+    board_y = (win_height - game_board_height) // 2
+    offset = (board_x, board_y)
+    start_time = 0
 
     while True:
         for event in pygame.event.get():
@@ -82,8 +113,9 @@ def game_loop(screen, game_active, clock):
                 if event.key == pygame.K_SPACE:
                     bo, solved_bo = get_board()
                     original_bo = deepcopy(bo)
-                    cubes = initialize_board(bo, screen)
+                    cubes = initialize_board(bo, screen, font, offset)
                     game_active = True
+                    start_time = pygame.time.get_ticks()//1000
 
             if game_active == True and event.type == pygame.MOUSEBUTTONDOWN:
                 mouse_pos = pygame.mouse.get_pos()
@@ -120,16 +152,33 @@ def game_loop(screen, game_active, clock):
                     for cube in cubes:
                         i, j = cube.pos
                         cube.set_num(solved_bo[i][j])
+                        game_active = False
                     #go to end screen and display the answer        
 
         if game_active:
+            screen.fill((94,129,162))
+            time_taken, score_surf, score_rect = display_score(start_time, font, screen)
             cubes.draw(screen)
             cubes.update()
 
+            screen.blit(score_surf, score_rect)
+
             game_active = solved_bo != bo
+            
+
 
         else:
-            screen.fill('green')
+            screen.fill((94,129,162))
+            if len(bo) == 0:
+                text = 'Welcome to a game of sudoku\nPress Space to start and Enter to get the solved board'
+                pos = (60,60)
+            else:
+               cubes.draw(screen)
+               cubes.update()
+               text = 'Press Space to restart'
+               pos = (300, 600)
+
+            display_text(screen, text, pos, font, 'purple')
         ## Here we will add code to start a new board or reset the board
 
         pygame.display.update()
@@ -139,16 +188,17 @@ def main():
     # Initialize the game
     pygame.init()
 
-    SCREEN_WIDTH = 540
-    SCREEN_HEIGHT = 540
+    SCREEN_WIDTH = 740
+    SCREEN_HEIGHT = 740
 
     screen = pygame.display.set_mode((SCREEN_WIDTH,SCREEN_HEIGHT))
     pygame.display.set_caption('Sudoku')
     clock = pygame.time.Clock()
     game_active = False
+    font = pygame.font.SysFont("Inkfree", 50)
 
     # solved = solve(board)
-    game_loop(screen, game_active, clock)
+    game_loop(screen, game_active, clock, font)
 
 if __name__ == '__main__':
     main()
