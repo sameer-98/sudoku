@@ -56,12 +56,14 @@ def get_board():
     return current_board, None
 
 
-def initialize_board(bo,screen, font, offset):
-    SCREEN_WIDTH, SCREEN_HEIGHT = (540,540)
+def initialize_board(bo, font, board_width, board_height,offset):
+    board_width -= 100
+    board_height -= 100
+    
     cubes = pygame.sprite.Group()
     for i in range(9):
         for j in range(9):
-            cube = Cube((i,j), bo[i][j], SCREEN_WIDTH//9, SCREEN_HEIGHT//9, font, offset)
+            cube = Cube((i,j), bo[i][j], board_width//9, board_height//9, font, offset)
             cubes.add(cube)
     
     return cubes
@@ -99,7 +101,7 @@ def game_loop(screen, game_active, clock, font):
     win_width, win_height = screen.get_size()
     game_board_width, game_board_height = win_width - 100, win_height - 100
     board_x = (win_width - game_board_width) // 2
-    board_y = (win_height - game_board_height) // 2
+    board_y = (win_height - game_board_height ) // 2
     offset = (board_x, board_y)
     start_time = 0
 
@@ -113,7 +115,7 @@ def game_loop(screen, game_active, clock, font):
                 if event.key == pygame.K_SPACE:
                     bo, solved_bo = get_board()
                     original_bo = deepcopy(bo)
-                    cubes = initialize_board(bo, screen, font, offset)
+                    cubes = initialize_board(bo, font, game_board_width, game_board_height , offset)
                     game_active = True
                     start_time = pygame.time.get_ticks()//1000
 
@@ -140,7 +142,7 @@ def game_loop(screen, game_active, clock, font):
                         key = int(chr(event.key))
                         if cube.is_selected: cube.set_num(key)
                     except ValueError:
-                        print('Enter a Number')
+                        pass
                 
                 cube.is_selected = False
                 disabled = False
