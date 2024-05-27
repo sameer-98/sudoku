@@ -126,15 +126,17 @@ def print_board(bo):
                 print(bo[i][j], ' ', end='')
         
         print('\n')
-        
-if __name__ == '__main__':    
+def main():
     solve(board)
     solve(board1)
     solve(board2)
 
     print(board)
     print(board1)
-    print(board2)
+    print(board2)    
+
+if __name__ == '__main__':    
+    main()
 
     
 
